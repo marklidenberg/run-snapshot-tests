@@ -1,0 +1,35 @@
+[project]
+name = "run-snapshot-tests"
+version = "0.1.0"
+description = "Runner for Python inline-snapshot tests with cleaner output and a better interface"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [
+    {name = "Mark Lidenberg", email = "marklidenberg@gmail.com"},
+]
+license = {text = "MIT"}
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "dony>=0.1.10",
+    "inline-snapshot>=0.27.1",
+    "pytest>=8.3.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "build>=1.2.2.post1",
+    "twine>=6.1.0",
+    "load-dotenv>=0.1.0",
+    "questionary>=2.1.0",
+    "better-exceptions>=0.3.3",
+]
