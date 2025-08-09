@@ -33,3 +33,6 @@ dev = [
     "questionary>=2.1.0",
     "better-exceptions>=0.3.3",
 ]
+
+[tool.setuptools]
+packages = ["run_snapshot_tests"]  # otherwise, conflicts with donyfiles/ directory
