@@ -22,7 +22,6 @@ def run_snapshot_tests(
 
 ```python
 from inline_snapshot import outsource, snapshot
-from loguru import logger
 from run_snapshot_tests import run_snapshot_tests
 
 def test():
@@ -48,7 +47,6 @@ if __name__ == "__main__":
 
 ```python
 from inline_snapshot import outsource, snapshot
-from loguru import logger
 from run_snapshot_tests import run_snapshot_tests
 
 from inline_snapshot import external

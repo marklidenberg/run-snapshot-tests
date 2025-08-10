@@ -196,4 +196,6 @@ and no test-dir defined in your pyproject.toml.
             path="conftest.py",
             data=old_contents,
         )
-    os.remove("conftest.py.bak")
+
+    if os.path.exists("conftest.py.bak"):
+        os.remove("conftest.py.bak")

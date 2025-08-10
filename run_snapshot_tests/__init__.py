@@ -5,4 +5,4 @@ try:
 except Exception:
     __version__ = "unknown"
 
-from .run_snapshot_tests import run_snapshot_tests
+from ._run_snapshot_tests import run_snapshot_tests
