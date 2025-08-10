@@ -1,6 +1,6 @@
 # run-snapshot-tests
 
-Runner for Python [inline-snapshot](https://github.com/15r10nk/inline-snapshot/) tests with cleaner output and a better interface
+Runner for Python [inline-snapshot](https://github.com/15r10nk/inline-snapshot/) tests with a better interface and cleaner terminal output.
 
 # Interface
 
