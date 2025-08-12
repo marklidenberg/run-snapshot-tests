@@ -2,6 +2,7 @@ from collections.abc import Callable
 import logging
 import os
 import shutil
+import sys
 from typing import Any, Literal, Union
 
 import pytest
@@ -10,6 +11,9 @@ import inspect
 
 from inspect import FrameInfo
 from pathlib import Path
+import inline_snapshot
+from run_snapshot_tests.fixed_format_code import fixed_format_code
+from run_snapshot_tests.fixed_snapshot import fixed_snapshot
 
 # - Dependent utils
 
@@ -97,6 +101,18 @@ def run_snapshot_tests(
         Path to the file to run tests from. If not provided, the current file is used.
     """
 
+    # - Monkey patch inline_snapshot.snapshot
+
+    inline_snapshot.snapshot.func.__code__ = fixed_snapshot.func.__code__
+    inline_snapshot._format.format_code.__code__ = fixed_format_code.__code__
+
+    # - Send warning if inline_snapshot version is not tested
+
+    if inline_snapshot.__version__ != "0.8.0":
+        logging.warning(
+            f"inline_snapshot version is not supported: {inline_snapshot.__version__}. The only supported version for now is 0.8.0"
+        )
+
     # - Log warning if ran from __init__.py file
 
     if not path and str(get_parent_frame_path()).endswith("__init__.py"):
@@ -156,6 +172,7 @@ def run_snapshot_tests(
     )
 
     # - Create a fake /tests directory to silence inline-snapshot log
+
     """
     ══════════════════════════════════════════════════ inline-snapshot ══════════════════════════════════════════════════
 INFO: inline-snapshot can not trim your external snapshots, because there is no tests/ folder in your repository root

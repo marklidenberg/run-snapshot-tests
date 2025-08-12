@@ -2,6 +2,8 @@
 
 Runner for Python [inline-snapshot](https://github.com/15r10nk/inline-snapshot/) tests with a better interface and cleaner terminal output.
 
+Note: requires `inline-snapshot==0.8.0`. No plans to update to newer versions for now, this works just fine with a couple of monkey-patched fixes.
+
 # Interface
 
 ```python
