@@ -1,18 +1,19 @@
 from inline_snapshot import outsource, snapshot
 
-from inline_snapshot import external
-
 
 def test():
-    assert "value" == snapshot("value")
-    assert 5 <= snapshot(5)
+    assert "value" == snapshot()
+    assert 5 <= snapshot()
     assert 5 in snapshot([5])
-    a = snapshot({"key": "value"})
+    a = snapshot()
     assert a["key"] == "value"
 
-    assert outsource(
-        "Long data" * 1000,
-    ) == snapshot(external("dc9b148c966a*.txt"))
+    assert (
+        outsource(
+            "Long data" * 1000,
+        )
+        == snapshot()
+    )
 
 
 if __name__ == "__main__":
