@@ -2,7 +2,7 @@
 
 Runner for Python [inline-snapshot](https://github.com/15r10nk/inline-snapshot/) tests with a better interface and cleaner terminal output.
 
-Note: requires `inline-snapshot==0.8.0`. No plans to update to newer versions for now, this works just fine with a couple of monkey-patched fixes.
+Note: Requires `inline-snapshot==0.8.0`.
 
 # Interface
 
@@ -11,11 +11,12 @@ Note: requires `inline-snapshot==0.8.0`. No plans to update to newer versions fo
 def run_snapshot_tests(
     path: Union[str, Path, None] = None, # tests path. Defaults to current file if not set
     mode: Literal[
-        "assert", 
-        "create_missing", 
-        "fix_broken", 
+        "assert",
+        "create_missing",
+        "fix_broken",
         "update_all"
     ] = "create_missing",
+    python_functions: Optional[str] = None, # Space-separated globs for function name patterns to collect as tests. Default is "test_*"
 ) -> None:
 ```
 

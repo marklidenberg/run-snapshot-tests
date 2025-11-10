@@ -24,7 +24,8 @@ def squash(
         default=dony.shell(
             "git branch --list main | grep -q main && echo main || echo master",
             quiet=True,
-        ),
+        )
+        or "main",
         provided=target_branch,
     )
 

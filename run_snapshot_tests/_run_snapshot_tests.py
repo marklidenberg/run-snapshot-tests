@@ -1,9 +1,7 @@
-from collections.abc import Callable
 import logging
 import os
-import shutil
 import sys
-from typing import Any, Literal, Union
+from typing import Any, Literal, Optional, Union
 
 import pytest
 
@@ -15,21 +13,60 @@ import inline_snapshot
 from run_snapshot_tests.fixed_format_code import fixed_format_code
 from run_snapshot_tests.fixed_snapshot import fixed_snapshot
 
+# - Plugin class
+
+
+class SnapshotTestPlugin:
+    """Plugin to customize pytest output for snapshot tests."""
+
+    def pytest_report_teststatus(self, report):
+        """Override the default test status reporting to prevent any output."""
+        if report.passed and report.when == "call":
+            return ("Passed", None, None)
+
+    @pytest.hookimpl(tryfirst=True)
+    def pytest_exception_interact(self, node, call, report):
+        if report.failed:
+            # - Get report output
+
+            traceback = str(call.excinfo.getrepr(style="short"))
+
+            # - Find first line starting with test name and crop to it
+
+            test_name = report.location[-1]
+            lines = traceback.split("\n")
+            line_with_test_name = [line for line in lines if test_name in line][0]
+            traceback = "\n".join(lines[lines.index(line_with_test_name) :])
+
+            # - Print cropped traceback
+
+            print("\n" + traceback, file=sys.stderr)
+
+    def pytest_sessionstart(self, session):
+        # - Get terminal reporter
+
+        terminal_reporter = session.config.pluginmanager.getplugin("terminalreporter")
+
+        # - Monkey patch the write method of the terminal reporter to prevent any output
+
+        original_write = terminal_reporter._tw.write
+
+        def custom_write(s, **kwargs):
+            if "::" in s and not s.startswith("FAILED"):  # test names
+                original_write("-" * 80 + "\n[" + s.strip() + "]\n", **kwargs)
+
+        terminal_reporter._tw.write = custom_write
+
+
 # - Dependent utils
 
 
+# todo later: use file-primitives when ready
 def read_file(
     path: Union[str, Path],
-    as_bytes: bool = False,
-    reader: Callable = lambda file: file.read(),
     default: Any = ...,  # if file does not exist
-    open_kwargs: dict = {},  # extra kwargs for open
-) -> Any:
+) -> str:
     """A simple file reader helper, as it should have been in the first place. Useful for one-liners and nested function calls."""
-
-    # - Convert Path to str
-
-    path = str(path)
 
     # - Check if file exists
 
@@ -38,29 +75,24 @@ def read_file(
 
     # - Read file
 
-    with open(path, "rb" if as_bytes else "r", **open_kwargs) as file:
-        return reader(file)
+    with open(str(path), "r") as file:
+        return file.read()
 
 
 def write_file(
-    data: Any,
+    data: str,
     path: Union[str, Path],
-    as_bytes: bool = False,
-    writer: Callable = lambda data, file: file.write(data),
-    open_kwargs: dict = {},
-    ensure_path: bool = True,
-) -> Any:
+) -> None:
     """A simple file writer helper, as it should have been in the first place. Useful for one-liners or nested function calls."""
 
     # - Ensure path
 
-    if ensure_path:
-        os.makedirs(os.path.dirname(os.path.abspath(str(path))), exist_ok=True)
+    os.makedirs(os.path.dirname(os.path.abspath(str(path))), exist_ok=True)
 
     # - Write file
 
-    with open(str(path), "wb" if as_bytes else "w", **open_kwargs) as file:
-        return writer(data, file)
+    with open(str(path), "w") as file:
+        file.write(data)
 
 
 def get_frame_path(
@@ -90,6 +122,7 @@ def run_snapshot_tests(
     mode: Literal[
         "assert", "create_missing", "fix_broken", "update_all"
     ] = "create_missing",
+    python_functions: Optional[str] = None,
 ) -> None:
     """Run test with inline snapshots.
 
@@ -99,12 +132,15 @@ def run_snapshot_tests(
     ----------
     path : str, optional
         Path to the file to run tests from. If not provided, the current file is used.
+    python_functions : str, optional
+        Space-separated globs for function name patterns to collect as tests.
+        Default is "test_*". Example: "test_* example_*" to collect both test_ and example_ functions.
     """
 
     # - Monkey patch inline_snapshot.snapshot
 
-    inline_snapshot.snapshot.func.__code__ = fixed_snapshot.func.__code__
-    inline_snapshot._format.format_code.__code__ = fixed_format_code.__code__
+    inline_snapshot.snapshot.func.__code__ = fixed_snapshot.func.__code__  # type: ignore[attr-defined]
+    inline_snapshot._format.format_code.__code__ = fixed_format_code.__code__  # type: ignore[attr-defined]
 
     # - Send warning if inline_snapshot version is not tested
 
@@ -143,50 +179,11 @@ def run_snapshot_tests(
 
     logging.getLogger().addFilter(_Filter())
 
-    # - Create `conftest.py` file with hook to show traceback on failures
-
-    # todo later: put into a plugin [@marklidenberg]
-
-    # -- Copy old conftest.py to conftest.py.bak if it exists
-
-    old_contents = read_file(
-        "conftest.py",
-        default="",
-    )
-    if os.path.exists("conftest.py"):
-        write_file(
-            path="conftest.py.bak",
-            data=old_contents,
-        )
-
-    write_file(
-        path="conftest.py",
-        data="\n".join(
-            [
-                old_contents,
-                read_file(
-                    os.path.join(os.path.dirname(__file__), "default_conftest.py")
-                ),
-            ]
-        ),
-    )
-
-    # - Create a fake /tests directory to silence inline-snapshot log
-
-    """
-    ══════════════════════════════════════════════════ inline-snapshot ══════════════════════════════════════════════════
-INFO: inline-snapshot can not trim your external snapshots, because there is no tests/ folder in your repository root
-and no test-dir defined in your pyproject.toml.
-    """
-
-    tests_existed = os.path.exists("tests")
-    os.makedirs("tests", exist_ok=True)
-
     # - Run tests
 
     pytest.main(
         args=[
-            path or get_parent_frame_path(),
+            str(path or get_parent_frame_path()),
             f"--inline-snapshot={','.join(flags)}"
             if flags
             else "--inline-snapshot-disable",
@@ -194,25 +191,17 @@ and no test-dir defined in your pyproject.toml.
             "--log-cli-level=INFO",  # enables "live logs": logging records are shown immediately as they happen
             "--disable-warnings",
             "--no-header",
-            # "--no-summary",  # inline-snapshot works ONLY with the summary
+            # "--no-summary",  # inline-snapshot 0.8.0 works ONLY with the summary
             "--tb=no",  # disable traceback in the summary
             "--quiet",  # even less noise
         ]
+        + (
+            [
+                "--override-ini",
+                f"python_functions={python_functions}",
+            ]
+            if python_functions
+            else []
+        ),
+        plugins=[SnapshotTestPlugin()],
     )
-
-    # - Remove fake /tests directory
-
-    if not tests_existed:
-        shutil.rmtree("tests")
-
-    # - Restore old conftest.py
-
-    os.remove("conftest.py")
-    if old_contents:
-        write_file(
-            path="conftest.py",
-            data=old_contents,
-        )
-
-    if os.path.exists("conftest.py.bak"):
-        os.remove("conftest.py.bak")

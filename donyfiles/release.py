@@ -22,7 +22,7 @@ def release(
 
     # - Select default arguments
 
-    version = dony.select(
+    version_result = dony.select(
         "Choose version",
         choices=[
             "patch",
@@ -31,6 +31,7 @@ def release(
         ],
         provided=version,
     )
+    version = version_result if isinstance(version_result, str) else "patch"
 
     uv_publish_token = dony.input(
         "Enter UV publish token (usually a PyPI token)",
