@@ -17,6 +17,6 @@ def test():
 
 
 if __name__ == "__main__":
-    from run_snapshot_tests import run_snapshot_tests
+    from run_snapshot_tests._run_snapshot_tests import run_snapshot_tests
 
     run_snapshot_tests()

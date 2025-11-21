@@ -22,10 +22,8 @@ def run_snapshot_tests(
 
 # Example
 
-
 ```python
-from inline_snapshot import outsource, snapshot
-from run_snapshot_tests import run_snapshot_tests
+from run_snapshot_tests import run_snapshot_tests, outsource, snapshot
 
 def test():
     assert "value" == snapshot()
@@ -49,10 +47,7 @@ if __name__ == "__main__":
 ↓
 
 ```python
-from inline_snapshot import outsource, snapshot
-from run_snapshot_tests import run_snapshot_tests
-
-from inline_snapshot import external
+from run_snapshot_tests import run_snapshot_tests,outsource, snapshot, external
 
 
 def test():

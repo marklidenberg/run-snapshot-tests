@@ -1,4 +1,5 @@
 from importlib.metadata import version
+from inline_snapshot import outsource, snapshot, external
 
 try:
     __version__ = version("run-snapshot-tests")
@@ -10,4 +11,7 @@ from ._run_snapshot_tests import run_snapshot_tests
 __all__ = [
     "__version__",
     "run_snapshot_tests",
+    "outsource",
+    "snapshot",
+    "external",
 ]
