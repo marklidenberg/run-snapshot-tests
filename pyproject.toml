@@ -22,6 +22,7 @@ classifiers = [
 dependencies = [
     "inline-snapshot==0.8.0",
     "pytest>=8.3.5",
+    "pytest-asyncio>=0.24.0",
 ]
 
 [project.optional-dependencies]
@@ -29,7 +30,8 @@ dev = [
     "build>=1.2.2.post1",
     "twine>=6.1.0",
     "dony>=0.2.1",
-] # uv pip install ".[dev]"
+    "prompt-toolkit==3.0.47", # There was a breaking change in 3.0.48, broke the dony 0.2.1 select
+] # uv sync --extra dev
 
 [build-system]
 requires = ["hatchling"]
@@ -38,3 +40,9 @@ build-backend = "hatchling.build"
 
 [tool.setuptools]
 packages = ["run_snapshot_tests"]  # otherwise, conflicts with donyfiles/ directory
+
+# - Make run async tests automatically (requires pytest-asyncio)
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

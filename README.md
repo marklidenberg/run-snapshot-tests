@@ -2,7 +2,15 @@
 
 Runner for Python [inline-snapshot](https://github.com/15r10nk/inline-snapshot/) tests with a better interface and cleaner terminal output.
 
-Note: Requires `inline-snapshot==0.8.0`.
+To run pytest with async functions, install python-asyncio (`uv add python-asyncio`) and add this setting to the `pyproject.toml`:
+
+```toml
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function" # prevents noisy warning message for some python-asyncio plugin versions
+```
+
+Note: only compatible with `inline-snapshot==0.8.0`.
 
 # Interface
 
@@ -23,7 +31,8 @@ def run_snapshot_tests(
 # Example
 
 ```python
-from run_snapshot_tests import run_snapshot_tests, outsource, snapshot
+from inline_snapshot import snapshot, outsource
+from run_snapshot_tests import run_snapshot_tests
 
 def test():
     assert "value" == snapshot()
@@ -47,7 +56,8 @@ if __name__ == "__main__":
 ↓
 
 ```python
-from run_snapshot_tests import run_snapshot_tests,outsource, snapshot, external
+from inline_snapshot import snapshot, outsource, external
+from run_snapshot_tests import run_snapshot_tests
 
 
 def test():
