@@ -25,13 +25,13 @@ dependencies = [
     "pytest-asyncio>=0.24.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "build>=1.2.2.post1",
     "twine>=6.1.0",
     "dony>=0.2.1",
     "prompt-toolkit==3.0.47", # There was a breaking change in 3.0.48, broke the dony 0.2.1 select
-] # uv sync --extra dev
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -45,4 +45,4 @@ packages = ["run_snapshot_tests"]  # otherwise, conflicts with donyfiles/ direct
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "function"
+asyncio_default_fixture_loop_scope = "function" # prevents noisy warning message for some python-asyncio plugin versions
