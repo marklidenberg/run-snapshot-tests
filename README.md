@@ -2,6 +2,12 @@
 
 Runner for Python [inline-snapshot](https://github.com/15r10nk/inline-snapshot/) tests with a simpler interface and cleaner terminal output.
 
+## Installation
+
+```bash
+pip install run-snapshot-tests
+```
+
 To run pytest with async functions, install python-asyncio (`uv add python-asyncio`) and add this setting to the `pyproject.toml`:
 
 ```toml
@@ -80,3 +86,11 @@ if __name__ == "__main__":
     run_snapshot_tests()
 
 ```
+
+## License
+
+MIT License
+
+## Author
+
+Mark Lidenberg [marklidenberg@gmail.com](mailto:marklidenberg@gmail.com)
