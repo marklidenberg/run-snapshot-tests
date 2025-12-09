@@ -26,6 +26,7 @@ def run_snapshot_tests(
     ] = "create_missing",
     python_functions: Optional[str] = None, # Space-separated globs for function name patterns to collect as tests. Default is "test_*"
 ) -> None:
+    ...
 ```
 
 # Example
