@@ -21,6 +21,7 @@ classifiers = [
 ]
 dependencies = [
     "inline-snapshot==0.8.0",
+    "marklidenberg-donyfiles==0.3.1",
     "pytest>=8.3.5",
     "pytest-asyncio>=0.24.0",
 ]
@@ -31,6 +32,7 @@ dev = [
     "twine>=6.1.0",
     "dony>=0.2.1",
     "prompt-toolkit==3.0.47", # There was a breaking change in 3.0.48, broke the dony 0.2.1 select
+    "marklidenberg-donyfiles>=0.3.0",
 ]
 
 [build-system]
